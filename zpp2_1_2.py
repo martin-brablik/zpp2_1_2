@@ -1,42 +1,39 @@
-def write_to_file(filename, value, write_mode):
-    try:
-        file = open(filename, write_mode)
-        file.write(value)
-        file.close()
-        return True
-    except:
-        print("Výstupní soubor se nepodařilo otevřít.")
-        return False
-
 def square_string(string):
+    """Pokusí se převést textový řetězec na číslo a vrátit jeho druhou mocninu jako textový řetězec"""
     try:
         value = int(string)
         square = value * value
         return str(square) + '\n'
     except:
-        print("\nHodnota na řádku nemohla být převedena na číslo.\nIgnorovat (1)\nPžeskočít (2)")
-        option = int(input())
-        if option == 1:
-            return string
-        else:
-            return ''
+        raise RuntimeError("Hodnotu se nepodařilo převést na číslo")
 
-def file_square(input_name, output_name):
+def open_file(path, mode):
+    """Pokusí se otevřít soubor"""
     try:
-        input_file = open(input_name)
-        line = input_file.readline()
-        if write_to_file(output_name, square_string(line), 'w'):
-            line = input_file.readline()
-            while line != "":
-                write_to_file(output_name, square_string(line), 'a')
-                line = input_file.readline()
-        else:
-            return
-        input_file.close()
-        print("Program byl úspěšně dokončen.")
+        return open(path, mode)
     except:
-        print("Vstupní soubor se nepodařilo otevřít.")
+        raise RuntimeError("Nepodařilo se otevřít soubor " + path)
 
-input_name = input("Zadejte jméno vstupního souboru: ")
-output_name = input("Zadejte jméno výstupního souboru: ")
-file_square(input_name, output_name)
+def file_number_map_square(input_path, output_path):
+    """Pro soubor čísel vytvoří soubor jeho druhých mocnin"""
+    input_file = open_file(input_path, 'r')
+    try:
+        output_file = open_file(output_path, 'w')
+        line = input_file.readline()
+        try:
+            while line != '':
+                output_file.write(square_string(line))
+                line = input_file.readline()
+        finally:
+            output_file.close()
+    finally:
+        input_file.close()
+
+input_path = input("Zadejte jméno vstupního souboru: ")
+output_path = input("Zadejte jméno výstupního souboru: ")
+try:
+    file_number_map_square(input_path, output_path)
+except RuntimeError as e:
+    print("Chyba: \n", e)
+else:
+    print("Program byl úspěšně dokončen.")
